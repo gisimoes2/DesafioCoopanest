@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exibir Dados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 90%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .edit-btn, .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .save-btn {
+            background-color: #008CBA;
+        }
+
+        .edit-btn:hover, .save-btn:hover {
+            opacity: 0.9;
+        }
+
+        .edit-btn:focus, .save-btn:focus {
+            outline: none;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Dados</h1>
+    <table id="dados-tabela">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados serão carregados aqui -->
+        </tbody>
+    </table>
+
+    <script>
+        // Faz a requisição para o PHP e preenche a tabela
+        fetch('/ProjetoPHP/api/dados.php')
+            .then(response => response.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    const tbody = document.querySelector('#dados-tabela tbody');
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = ` 
+                            <td>${row.id}</td>
+                            <td><span class="editable" data-id="${row.id}" data-field="nome">${row.nome}</span></td>
+                            <td><span class="editable" data-id="${row.id}" data-field="email">${row.email}</span></td>
+                            <td><span class="editable" data-id="${row.id}" data-field="telefone">${row.telefone}</span></td>
+                            <td><button class="edit-btn" onclick="enableEditMode(this)">Editar</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    document.querySelector('#dados-tabela tbody').innerHTML = "<tr><td colspan='5'>Nenhum dado encontrado.</td></tr>";
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar os dados:', error);
+                document.querySelector('#dados-tabela tbody').innerHTML = "<tr><td colspan='5'>Erro ao carregar os dados.</td></tr>";
+            });
+
+        function enableEditMode(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td');
+            
+            // Mudar cada célula para um campo de input editável
+            cells.forEach(cell => {
+                if (cell.querySelector('span')) {
+                    const span = cell.querySelector('span');
+                    const field = span.dataset.field;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = span.textContent;
+                    input.setAttribute('data-id', row.querySelector('td:first-child').textContent);
+                    input.setAttribute('data-field', field);
+                    cell.innerHTML = '';
+                    cell.appendChild(input);
+                }
+            });
+            button.textContent = 'Salvar';
+            button.classList.replace('edit-btn', 'save-btn');
+            button.onclick = () => saveEdit(row);
+        }
+
+        function saveEdit(row) {
+            const inputs = row.querySelectorAll('input');
+            const updatedData = {};
+
+            // Coletar os dados atualizados
+            inputs.forEach(input => {
+                updatedData[input.dataset.field] = input.value;
+            });
+
+            // Exibe os dados no console para depuração
+            console.log('Dados a serem enviados:', {
+                id: row.querySelector('td:first-child').textContent,
+                ...updatedData
+            });
+
+            // Enviar os dados atualizados para o servidor via fetch
+            fetch('/ProjetoPHP/api/editar.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: row.querySelector('td:first-child').textContent,
+                    ...updatedData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Dados atualizados com sucesso!');
+                    location.reload(); // Recarregar a página para mostrar os dados atualizados
+                } else {
+                    alert('Erro ao atualizar os dados!');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar os dados!');
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Dados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #4CAF50; /* Fundo verde */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff; /* Texto branco */
+            margin: 0 0 20px 0;
+            background-color: #4CAF50; /* Fundo verde */
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="text"], 
+        input[type="email"], 
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #ffffff; /* Botão branco */
+            color: #4CAF50; /* Texto verde */
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #45a049; /* Fundo verde escuro ao passar o mouse */
+            color: white; /* Texto branco ao passar o mouse */
+        }
+
+        .form-container input[type="text"]:focus, 
+        .form-container input[type="email"]:focus, 
+        .form-container input[type="date"]:focus {
+            border-color: #4CAF50;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #ffffff;
+            background-color: #4CAF50;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Formulário de Dados</h1>
+        <div id="success-message" class="success-message">Dados enviados com sucesso!</div>
+        <form action="/ProjetoPHP/api/insert.php" method="POST" onsubmit="showSuccessMessage(event)">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
+
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" required><br>
+
+            <label for="endereco">Endereço:</label>
+            <input type="text" id="endereco" name="endereco"><br>
+
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade"><br>
+
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" name="estado"><br>
+
+            <label for="cep">CEP:</label>
+            <input type="text" id="cep" name="cep"><br>
+
+            <label for="nascimento">Nascimento:</label>
+            <input type="date" id="nascimento" name="nascimento"><br>
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <script>
+        function showSuccessMessage(event) {
+            event.preventDefault(); // Impede o envio do formulário padrão para testar a mensagem
+
+            // Exibe a mensagem de sucesso
+            const message = document.getElementById('success-message');
+            message.style.display = 'block';
+
+            // Opcional: Enviar o formulário manualmente após exibir a mensagem
+            setTimeout(() => {
+                event.target.submit();
+            }, 3000); // Aguarda 3 segundos antes de enviar
+        }
+    </script>
+</body>
+</html>
